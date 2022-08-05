@@ -1,0 +1,9 @@
+id: x84oc6nke6gh2uz6pmjnpp296va11opyi609yr3s0y53jlfu
+name: progressbar
+main: src/main.zig
+license: GPLv3
+description: Small library to create progress bars in your terminal.
+dependencies:
+  - src: git https://github.com/jecolon/zigstr.git
+dev_dependencies:
+  - src: git https://github.com/jecolon/zigstr.git

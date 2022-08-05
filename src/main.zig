@@ -1,5 +1,5 @@
 const std = @import("std");
-const string = @import("string").String;
+const string = @import("zigstr");
 
 const term = @import("term.zig");
 
@@ -49,23 +49,31 @@ pub fn newWithFormat(comptime label: []const u8, max: u64, comptime format: []co
 /// This is just a dummy function to test library and its dependencies work as expected.
 ///
 /// NOTE: delete this function once everything is working
-pub fn foo(allocator: *std.mem.Allocator, stdout: anytype) !void {
+pub fn foo(allocator: std.mem.Allocator, stdout: anytype) !void {
     var pb = try newWithFormat("Converting Linux Kernel to Zig ...", 100, "[=]");
 
-    var fill_char = std.ArrayList(u8).init(allocator.*);
-    defer fill_char.deinit();
+    var fill_char = std.ArrayList(u8).init(allocator);
     try fill_char.append(pb.fill);
 
-    var fill = string.init(allocator);
+    var fill = try string.fromOwnedBytes(allocator, fill_char.items);
     defer fill.deinit();
 
-    try fill.concat(fill_char.items);
     try fill.repeat(pb.label.len + 1);
-    try stdout.print("{s}\n", .{fill.str()});
+    try stdout.print("{s}  {c}{s}{c}\n", .{pb.label, pb.begin, fill, pb.end});
 }
 
 test "New progress bar with format" {
     var allocator = std.testing.allocator;
 
-    try foo(&allocator, std.io.getStdOut().writer());
+    var pb = try newWithFormat("Converting Linux Kernel to Zig ...", 100, "[=]");
+
+    // NOTE: we do not need to deinit here as zigstr already frees it
+    var fill_char = std.ArrayList(u8).init(allocator);
+    try fill_char.append(pb.fill);
+
+    var fill = try string.fromOwnedBytes(allocator, fill_char.items);
+    defer fill.deinit();
+
+    try fill.repeat(pb.label.len + 1);
+    try std.io.getStdOut().writer().print("{s}\n", .{fill});
 }
