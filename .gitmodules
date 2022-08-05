@@ -1,0 +1,3 @@
+[submodule "lib/zig-string"]
+	path = lib/zig-string
+	url = https://github.com/JakubSzark/zig-string
